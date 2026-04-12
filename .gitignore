@@ -1,0 +1,6 @@
+.venv/
+logs/
+target/
+dbt_packages/
+.env
+profiles/profiles.yml

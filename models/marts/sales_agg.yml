@@ -1,0 +1,21 @@
+version: 2
+
+models:
+  - name: sales_agg
+    description: "Агрегированная таблица продаж по дате и продукту."
+    columns:
+      - name: event_date
+        tests:
+          - not_null
+      - name: product_id
+        tests:
+          - not_null
+      - name: total_revenue
+        tests:
+          - not_null
+      - name: total_quantity
+        tests:
+          - not_null
+      - name: orders_count
+        tests:
+          - not_null
