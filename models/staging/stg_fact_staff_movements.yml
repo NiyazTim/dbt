@@ -1,0 +1,21 @@
+version: 2
+
+models:
+  - name: stg_fact_staff_movements
+    description: "Таблица проходов сотрудников за последние 2 дня."
+    columns:
+      - name: id
+        tests:
+          - not_null
+      - name: staff_id
+        tests:
+          - not_null
+      - name: dt
+        tests:
+          - not_null
+      - name: created_at
+        tests:
+          - not_null
+      - name: load_dttm
+        tests:
+          - not_null

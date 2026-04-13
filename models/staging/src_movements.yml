@@ -1,0 +1,21 @@
+version: 2
+
+sources:
+  - name: staff_movements_source
+    schema: "{{ env_var('DBT_SOURCE_SCHEMA', 'all_shifts') }}"
+    tables:
+      - name: movements
+        description: "Таблица проходов сотрудников."
+        columns:
+          - name: id
+            tests:
+              - not_null
+          - name: staff_id
+            tests:
+              - not_null
+          - name: dt
+            tests:
+              - not_null
+          - name: created_at
+            tests:
+              - not_null

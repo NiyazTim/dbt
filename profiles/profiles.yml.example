@@ -1,4 +1,4 @@
-sales_dbt:
+staff_movements_dbt:
   target: local
   outputs:
     local:
@@ -8,5 +8,5 @@ sales_dbt:
       user: "{{ env_var('DBT_POSTGRES_USER') }}"
       password: "{{ env_var('DBT_POSTGRES_PASSWORD') }}"
       dbname: "{{ env_var('DBT_POSTGRES_DB') }}"
-      schema: "{{ env_var('DBT_POSTGRES_SCHEMA', 'public') }}"
+      schema: "{{ env_var('DBT_TARGET_SCHEMA', 'stg') }}"
       threads: 2

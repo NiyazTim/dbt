@@ -1,0 +1,32 @@
+stages:
+  - deploy
+
+variables:
+  DEPLOY_DIR: /home/nntimergaliev/dbt
+
+deploy_dbt_project_tnn:
+  stage: deploy
+  tags:
+    - dbt-runner
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "tnn"'
+  script:
+    - bash -lc 'cd "$DEPLOY_DIR" && git pull origin tnn && source .venv/bin/activate && set -a && source .env && set +a && pip install -r requirements.txt'
+
+# deploy_dbt_project_dev:
+#   stage: deploy
+#   tags:
+#     - dbt-runner
+#   rules:
+#     - if: '$CI_COMMIT_BRANCH == "dev"'
+#   script:
+#     - bash -lc 'cd "$DEPLOY_DIR" && git pull origin dev && source .venv/bin/activate && set -a && source .env && set +a && pip install -r requirements.txt'
+
+# deploy_dbt_project_master:
+#   stage: deploy
+#   tags:
+#     - dbt-runner
+#   rules:
+#     - if: '$CI_COMMIT_BRANCH == "master"'
+#   script:
+#     - bash -lc 'cd "$DEPLOY_DIR" && git pull origin master && source .venv/bin/activate && set -a && source .env && set +a && pip install -r requirements.txt'

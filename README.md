@@ -1,37 +1,109 @@
-# dbt sales demo
+# dbt project
 
-Локальный dbt-проект для сценария:
+Репозиторий содержит `dbt`-модели и тесты для PostgreSQL.
 
-- source table: `sales_facts`
-- target model: `sales_agg`
-- database: PostgreSQL
+Проект используется как отдельный слой SQL-трансформаций. Запуск моделей выполняется из `Dagster`, а сам код моделей и тестов хранится в этом репозитории.
 
-## Быстрый старт
+## Назначение репозитория
+
+Репозиторий нужен для:
+- хранения SQL-моделей `dbt`
+- хранения тестов качества данных
+- сопровождения настроек подключения `dbt`
+- версионирования изменений через GitLab
+
+## Общая схема работы
+
+Процесс работы с проектом выглядит так:
+- разработчик вносит изменения в модели или тесты
+- изменения коммитятся и отправляются в GitLab
+- GitLab CI обновляет локальную копию проекта на сервере
+- `Dagster` при следующем запуске использует актуальную версию `dbt`-проекта
+
+Таким образом:
+- GitLab отвечает за хранение и версионирование кода
+- GitLab CI отвечает за доставку новой версии проекта на сервер
+- `dbt` отвечает за SQL-трансформации и тесты
+- `Dagster` отвечает за orchestration и запуск
+
+## Структура проекта
+
+- `models/` — SQL-модели и их `yml`-описания
+- `tests/` — кастомные SQL-тесты
+- `profiles/` — профиль подключения `dbt`
+- `requirements.txt` — зависимости Python
+- `.gitlab-ci.yml` — автоматическое обновление проекта на сервере
+
+## Локальный запуск
 
 ```bash
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
-cp .env.example .env
-cp profiles/profiles.yml.example profiles/profiles.yml
 set -a && source .env && set +a
 dbt debug --profiles-dir profiles
 dbt build --profiles-dir profiles
 ```
 
-## Что делает проект
+## GitLab CI
 
-- читает `public.sales_facts` как source
-- строит `sales_agg` как dbt model
-- запускает schema tests и кастомный тест на уникальность ключа `(event_date, product_id)`
+Для автоматического обновления проекта на сервере используется `.gitlab-ci.yml`.
 
-## Git workflow
+Pipeline выполняет следующие действия:
+- обновляет локальную директорию проекта на сервере
+- активирует `venv`
+- загружает переменные из `.env`
+- обновляет зависимости проекта
+
+После этого `Dagster` использует уже актуальную версию `dbt`-кода.
+
+## Ручное обновление проекта на сервере
+
+Этот сценарий нужен как резервный вариант, если автодеплой временно недоступен или проект нужно обновить вручную.
 
 ```bash
-git init
-git add .
-git commit -m "Инициализирован dbt-проект для sales aggregation"
-git remote add origin https://github.com/NiyazTim/dbt.git
-git branch -M main
-git push -u origin main
+cd /srv/dbt
+git pull origin main
+source .venv/bin/activate
+set -a && source .env && set +a
+pip install -r requirements.txt
+```
+
+## Подключение к PostgreSQL
+
+Подключение `dbt` к PostgreSQL настраивается в `profiles/profiles.yml`.
+
+Реальные параметры подключения не хранятся в `profiles.yml` напрямую, а передаются через переменные окружения:
+- `DBT_POSTGRES_HOST`
+- `DBT_POSTGRES_PORT`
+- `DBT_POSTGRES_USER`
+- `DBT_POSTGRES_PASSWORD`
+- `DBT_POSTGRES_DB`
+- `DBT_TARGET_SCHEMA`
+- `DBT_SOURCE_SCHEMA`
+
+Перед локальным запуском `dbt` переменные должны быть загружены из `.env`:
+
+```bash
+set -a && source .env && set +a
+```
+
+Если `dbt` запускается из `Dagster`, эти же переменные должны быть доступны в окружении, где выполняется `Dagster`.
+
+## Изменение моделей
+
+При изменении только SQL-моделей, `yml`-описаний или тестов переустанавливать `venv` не требуется.
+
+Обычный цикл разработки:
+
+```bash
+source .venv/bin/activate
+set -a && source .env && set +a
+dbt build --profiles-dir profiles
+```
+
+Если изменились зависимости проекта, необходимо дополнительно выполнить:
+
+```bash
+pip install -r requirements.txt
 ```
