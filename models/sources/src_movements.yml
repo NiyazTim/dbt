@@ -1,11 +1,11 @@
 version: 2
 
 sources:
-  - name: staff_movements_source
-    schema: "{{ env_var('DBT_SOURCE_SCHEMA', 'all_shifts') }}"
+  - name: stg_source
+    schema: "{{ env_var('DBT_SOURCE_SCHEMA', 'stg') }}"
     tables:
-      - name: movements
-        description: "Таблица проходов сотрудников."
+      - name: stg_fact_staff_movements
+        description: "Стейджинговая таблица проходов сотрудников, заполненная внешним пайплайном."
         columns:
           - name: id
             tests:

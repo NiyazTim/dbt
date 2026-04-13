@@ -1,19 +1,19 @@
 version: 2
 
 models:
-  - name: stg_fact_staff_movements
-    description: "Таблица проходов сотрудников за последние 2 дня."
+  - name: dds_fact_staff_worktime
+    description: "Факт отработанного времени сотрудников по дням."
     columns:
-      - name: id
-        tests:
-          - not_null
       - name: staff_id
         tests:
           - not_null
-      - name: dt
+      - name: work_date
         tests:
           - not_null
-      - name: created_at
+      - name: hours
+        tests:
+          - not_null
+      - name: minutes
         tests:
           - not_null
       - name: load_dttm

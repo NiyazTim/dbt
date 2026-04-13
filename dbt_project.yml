@@ -14,4 +14,10 @@ clean-targets:
 
 models:
   staff_movements_dbt:
-    +materialized: table
+    staging:
+      +materialized: table
+      +schema: stg
+    dds:
+      +schema: dds
+      +materialized: incremental
+      +incremental_strategy: delete+insert

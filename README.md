@@ -23,8 +23,15 @@
 Таким образом:
 - GitLab отвечает за хранение и версионирование кода
 - GitLab CI отвечает за доставку новой версии проекта на сервер
-- `dbt` отвечает за SQL-трансформации и тесты
+- `dbt` отвечает за SQL-трансформации и тесты поверх уже загруженных staging-таблиц
 - `Dagster` отвечает за orchestration и запуск
+
+
+## Роль dbt в пайплайне
+
+Проект не выполняет межсерверную загрузку данных.
+
+Ожидается, что staging-таблицы уже заполнены внешним пайплайном, например через `Dagster`. После этого `dbt` использует эти таблицы как source и строит следующий слой моделей.
 
 ## Структура проекта
 
@@ -61,9 +68,29 @@ Pipeline выполняет следующие действия:
 
 Этот сценарий нужен как резервный вариант, если автодеплой временно недоступен или проект нужно обновить вручную.
 
+Команда `git pull` должна выполняться для той ветки, которая развёрнута в нужной среде.
+
+Примеры:
+
 ```bash
 cd /srv/dbt
-git pull origin main
+git pull origin master
+source .venv/bin/activate
+set -a && source .env && set +a
+pip install -r requirements.txt
+```
+
+```bash
+cd /srv/dbt
+git pull origin dev
+source .venv/bin/activate
+set -a && source .env && set +a
+pip install -r requirements.txt
+```
+
+```bash
+cd /srv/dbt
+git pull origin tnn
 source .venv/bin/activate
 set -a && source .env && set +a
 pip install -r requirements.txt
